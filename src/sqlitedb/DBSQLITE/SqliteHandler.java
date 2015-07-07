@@ -1,5 +1,6 @@
 package sqlitedb.DBSQLITE;
 
+import Reflection.Mapeadora;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -69,6 +70,7 @@ public class SqliteHandler
         {
                 ArrayList<Object> arrSalida = new ArrayList<Object>();
                 Class clase = obj.getClass();
+                Mapeadora mapeadora = new Mapeadora(clase);
                 System.out.println("OBJ A MAPEAR = " + obj.getClass());
                
                 if(conexion != null)
@@ -83,12 +85,26 @@ public class SqliteHandler
                                 System.out.println("cantidadColumnas: " + cantidadColumnas);
                                 while(rs.next())
                                 {
-                                        ArrayList<String> arrFila = new ArrayList<String>();
+                                        mapeadora = new Mapeadora(clase);
+                                        //ArrayList<String> arrFila = new ArrayList<String>();
                                         for (int i = 1; i <= cantidadColumnas; i++)
                                         {
-                                                arrFila.add(rs.getString(i));
+                                                String nombreColumna = rs.getMetaData().getColumnLabel(i).toLowerCase();
+                                                System.out.println("NombreColumna: "  + nombreColumna);
+                                                for( java.lang.reflect.Method m : mapeadora.seters())
+                                                {
+                                                        System.out.println("NOMBRE CLASE = " + m.getName().toLowerCase().substring(3, m.getName().length()));
+                                                        if(m.getName().toLowerCase().substring(3, m.getName().length()).equalsIgnoreCase(nombreColumna))
+                                                        {
+                                                                System.out.println("true");
+                                                                mapeadora.invoke(m , rs.getString(i));
+                                                        }
+                                                }
+                                                
+                                                //arrFila.add(rs.getString(i));
                                         }
-                                        arrSalida.add(arrFila);
+                                        //arrSalida.add(arrFila);
+                                        arrSalida.add(mapeadora.getIntancia());
                                 }
                                 
                                 statement.close();

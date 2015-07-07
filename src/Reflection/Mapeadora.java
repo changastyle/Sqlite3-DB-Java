@@ -104,12 +104,13 @@ public class Mapeadora
                         ex.printStackTrace();
                 } 
         }
-        public void invoke(String methodName,Object parametro)
+        public void invoke(Method m,Object parametro)
         {
                 try
                 {
-                        Method method = clase.getMethod(methodName);
-                        method.invoke(intancia, parametro);
+                        //Method method = clase.getMethod(methodName);
+                        m.invoke(intancia, parametro);
+                        
                 } 
                 catch (Exception ex)
                 {

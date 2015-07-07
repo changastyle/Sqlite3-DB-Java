@@ -29,6 +29,12 @@ public class Sueño
         {
                 this.sueño = sueño;
         }
+
+        @Override
+        public String toString()
+        {
+                return "Sue\u00f1o{" + "id=" + id + ", sue\u00f1o=" + sueño + '}';
+        }
         
         
 }
