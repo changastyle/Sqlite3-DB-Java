@@ -5,14 +5,16 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SqliteHandler
 {
-        private Connection conexion = null;
-        private Statement statement = null;
-        private String rutaDB = "test.db";
+        private static Connection conexion = null;
+        private static Statement statement = null;
+        private static String rutaDB = "test.db";
                 
-        public void conectar()
+        public static void conectar()
         {
                 try
                 {
@@ -26,7 +28,7 @@ public class SqliteHandler
                         e.printStackTrace();
                 }
         }
-        public ArrayList<Object> query(String sql)
+        public static ArrayList<Object> query(String sql)
         {
                 ArrayList<Object> arrSalida = new ArrayList<Object>();
                 
@@ -63,7 +65,48 @@ public class SqliteHandler
                 }
                 return arrSalida;
         }
-        public void execute(String sql)
+        public static ArrayList<Object> query(Object obj, String sql)
+        {
+                ArrayList<Object> arrSalida = new ArrayList<Object>();
+                Class clase = obj.getClass();
+                System.out.println("OBJ A MAPEAR = " + obj.getClass());
+               
+                if(conexion != null)
+                {
+                        System.out.println("CONEXION ABIERTA");
+                        try
+                        {       
+                                statement = conexion.createStatement();
+                                ResultSet rs = statement.executeQuery(sql);
+                                
+                                int cantidadColumnas = rs.getMetaData().getColumnCount();
+                                System.out.println("cantidadColumnas: " + cantidadColumnas);
+                                while(rs.next())
+                                {
+                                        ArrayList<String> arrFila = new ArrayList<String>();
+                                        for (int i = 1; i <= cantidadColumnas; i++)
+                                        {
+                                                arrFila.add(rs.getString(i));
+                                        }
+                                        arrSalida.add(arrFila);
+                                }
+                                
+                                statement.close();
+                        } 
+                        catch (Exception e)
+                        {
+                                e.printStackTrace();
+                        }   
+                }
+                else
+                {
+                        System.out.println("CONEXION = NULL");
+                        conectar();
+                        arrSalida = query(obj,sql);
+                }
+                return arrSalida;
+        }
+        public static void execute(String sql)
         {
                  if(conexion != null)
                 {
@@ -86,7 +129,7 @@ public class SqliteHandler
                         execute(sql);
                 }
         }
-        public void close()
+        public  static void close()
         {
                 try
                 {
@@ -97,5 +140,4 @@ public class SqliteHandler
                         e.printStackTrace();
                 }
         }
-   
 }
